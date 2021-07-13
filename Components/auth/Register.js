@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import View from 'react-native-gesture-handler/lib/typescript/GestureHandlerRootView'
 import { View, Button, TextInput } from 'react-native';
+
+import firebase from 'firebase'; 
 
 export class Register extends Component {
     constructor(props){
@@ -16,7 +17,14 @@ export class Register extends Component {
     }
 
     onSignUp(){
-
+        const { email, password, name } = this.state; 
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((result) => {
+            console.log(result)
+        })
+        .catch((error) => {
+            console.log(error)
+        })
     }
 
     render() {
@@ -40,7 +48,7 @@ export class Register extends Component {
 
                 <Button
                     onPress={() => this.onSignUp}
-                    titl="Sign Up"
+                    title="Sign Up"
                 />
 
             </View>
