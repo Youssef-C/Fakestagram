@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 
 import {View, Text} from 'react-native';
 
+import AddScreen from './Components/Main/Add';
+
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import rootReducer from './Redux/Reducers';
@@ -83,6 +85,7 @@ export class App extends Component {
               <NavigationContainer>
                 <Stack.Navigator initialRouteName="Main">
                   <Stack.Screen name="Main" component={MainScreen} options={{ headerShown: false }}/>
+                  <Stack.Screen name="Add" component={AddScreen}/>
                 </Stack.Navigator>
               </NavigationContainer>
             </Provider>

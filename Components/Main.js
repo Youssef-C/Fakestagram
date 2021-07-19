@@ -2,10 +2,9 @@ import React, { Component } from 'react';
 import {View, Text} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';  
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
 import FeedScreen from './Main/Feed';
-import AddScreen from './Main/Add';
 import ProfileScreen from './Main/Profile';
 
 import { connect } from 'react-redux';
@@ -13,7 +12,11 @@ import { bindActionCreators } from 'redux';
 import { fetchUser } from '../Redux/Actions/index';
 import { Provider } from 'react-redux';
 
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialBottomTabNavigator();
+
+const EmptyScreen = () => {
+    return(null)
+};
 
 export class Main extends Component {
     componentDidMount(){
@@ -21,7 +24,7 @@ export class Main extends Component {
     }
     render() {
         return (
-                    <Tab.Navigator>
+                    <Tab.Navigator initialRouteName="Feed" labeled={false}>
                         <Tab.Screen name="Feed" component={FeedScreen}
                         options={{
                             tabBarIcon: ({color, size }) => (
@@ -29,7 +32,13 @@ export class Main extends Component {
                             ),
                         }} />
 
-                        <Tab.Screen name="Add" component={AddScreen}
+                        <Tab.Screen name="AddContainer" component={EmptyScreen}
+                        listeners={({ navigation })=> ({
+                            tabPress: event => {
+                                event.preventDefault()
+                                navigation.navigate("Add")
+                            }
+                        })}
                         options={{
                             tabBarIcon: ({color, size }) => (
                                 <MaterialCommunityIcons name="plus-box" color={color} size={26}/>
