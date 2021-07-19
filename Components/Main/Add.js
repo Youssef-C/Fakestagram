@@ -3,19 +3,29 @@ import { StyleSheet, Text, View, Button, Image } from 'react-native';
 import { Camera } from 'expo-camera';
 import { resetWarningCache } from 'prop-types';
 import { Rowing } from '@material-ui/icons';
+import * as ImagePicker from 'expo-image-picker';
+
 
 export default function App() {
-  const [hasPermission, setHasPermission] = useState(null);
-  const [camera, setCamera] = useState(null);
+  const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
   const [image, setImage] = useState(null);
+  const [camera, setCamera] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
 
+  //Checks for if user has given access to camera roll/gallery
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      const cameraStatus  = await Camera.requestPermissionsAsync();
+      setHasCameraPermission(cameraStatus.status === 'granted');
+
+      const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setHasGalleryPermission(galleryStatus.status === 'granted');
+      
+
     })();
   }, []);
+
 
   const takePicture = async () => {
     if(camera){
@@ -24,10 +34,24 @@ export default function App() {
     }
   };
 
-  if (hasPermission === null) {
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+    console.log(result);
+
+    if (!result.cancelled) {
+      setImage(result.uri);
+    }
+  };
+
+  if (hasCameraPermission === null || hasGalleryPermission === false) {
     return <View />;
   }
-  if (hasPermission === false) {
+  if (hasCameraPermission === false || hasGalleryPermission === false) {
     return <Text>No access to camera</Text>;
   }
   return (
@@ -54,7 +78,14 @@ export default function App() {
         </Button>
 
         <Button
-        title="Take Picture" onPress={() => takePicture()}/>
+        title="Take Picture" 
+        onPress={() => takePicture()}
+        />
+
+        <Button
+        title="Pick Image From Gallery"
+        onPress={() => pickImage()}
+        />
         
         {/*This displays the image based on the image URI as long as it's not NULL*/}
         {image && <Image source={{ uri: image }} style={{ flex: 1 }} />}
