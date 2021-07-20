@@ -9,7 +9,7 @@ import ProfileScreen from './Main/Profile';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchUser } from '../Redux/Actions/index';
+import { fetchUser, fetchUserPosts } from '../Redux/Actions/index';
 import { Provider } from 'react-redux';
 
 const Tab = createMaterialBottomTabNavigator();
@@ -21,6 +21,7 @@ const EmptyScreen = () => {
 export class Main extends Component {
     componentDidMount(){
         this.props.fetchUser();
+        this.props.fetchUserPosts();
     }
     render() {
         return (
@@ -60,6 +61,6 @@ const mapStateToProps = (store) => ({
     currentUser: store.userState.currentUser
 });
 
-const mapDispatchProps = (dispatch) => bindActionCreators({fetchUser}, dispatch);
+const mapDispatchProps = (dispatch) => bindActionCreators({fetchUser, fetchUserPosts}, dispatch);
 
 export default connect(mapStateToProps, mapDispatchProps)(Main);  
