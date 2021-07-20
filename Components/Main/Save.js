@@ -2,6 +2,7 @@ import React, { useState } from  'react';
 import { View, TextInput, Image, TextInputBase, Button } from 'react-native';
 
 import firebase from 'firebase';
+import { Navigation } from '@material-ui/icons';
 require("firebase/firestore");
 require("firebase/firebase-storage");
 
@@ -31,6 +32,7 @@ export default function Save(props) {
 
                 const taskCompleted = () => {
                     task.snapshot.ref.getDownloadURL().then((snapshot) =>{
+                        savePostData(snapshot);
                         console.log(snapshot)
                     } )
                 }
@@ -41,6 +43,24 @@ export default function Save(props) {
 
                 task.on("state_changed", taskProgress, taskError, taskCompleted );
     };
+
+    const savePostData = (downloadURL) => {
+
+        firebase.firestore()
+            .collection('post')
+            .doc(firebase.auth()
+            .currentUser.uid)
+            .collection("userPosts")
+            .add({
+                downloadURL,
+                caption,
+                creation: firebase.firestore.FieldValue.serverTimestamp()
+
+            }).then((function () {
+                props.navigation.popToTop()
+            }))
+    }
+
 
     return (
         <View style={{flex: 1}}>
