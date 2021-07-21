@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, View, Text, Image, FlatList } from 'react-native'
+import { StyleSheet, View, Text, Image, FlatList, Button, Pressable, TouchableOpacity } from 'react-native'
+const styles = require('../Style');
 
 import firebase from 'firebase'
 require('firebase/firestore')
@@ -8,6 +9,7 @@ import { connect } from 'react-redux'
 function Profile(props) {
     const [userPosts, setUserPosts] = useState([]);
     const [user, setUser] = useState(null);
+    const [following, setFollowing] = useState(false);
 
     useEffect(() => {
         const { currentUser, posts } = props;
@@ -45,29 +47,76 @@ function Profile(props) {
                 })
         }
 
-    }, [props.route.params.uid])
+        if(props.following.indexOf(props.route.params.uid) >-1){
+             setFollowing(true);
+        } else {
+            setFollowing(false);        
+        }
+
+    }, [props.route.params.uid, props.following])
+
+    const followTitle = "Follow"; 
+
+    const onFollow = () => {
+        firebase.firestore()
+            .collection("following")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("userFollowing")
+            .doc(props.route.params.uid)
+            .set({})
+    };
+
+    const onUnFollow = () => {
+        firebase.firestore()
+            .collection("following")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("userFollowing")
+            .doc(props.route.params.uid)
+            .delete({})
+    };
 
     if (user === null) {
         return <View />
     }
     return (
-        <View style={styles.container}>
-            <View style={styles.containerInfo}>
+        <View style={stylesProfile.container}>
+            <View style={stylesProfile.containerInfo}>
                 <Text>{user.name}</Text>
                 <Text>{user.email}</Text>
+                
+
+            {props.route.params.uid !== firebase.auth().currentUser.uid ? (
+                    <View>
+                        {following ? (
+                            <Button style={stylesProfile.unFollowButton} 
+                                title="Unfollow"
+                                color="grey"
+                                onPress={() => onUnFollow()}
+                            />
+                        ) :
+                            ( 
+                                <Button style={stylesProfile.followButton}
+                                    title="Follow"
+                                    color="#03b1fc"
+                                    onPress={() => onFollow()}
+                                />
+                                
+                            )}
+                    </View>
+                ) : null}
             </View>
 
-            <View style={styles.containerGallery}>
+            <View style={stylesProfile.containerGallery}>
                 <FlatList
                     numColumns={3}
                     horizontal={false}
                     data={userPosts}
                     renderItem={({ item }) => (
                         <View
-                            style={styles.containerImage}>
+                            style={stylesProfile.containerImage}>
 
                             <Image
-                                style={styles.image}
+                                style={stylesProfile.image}
                                 source={{ uri: item.downloadURL }}
                             />
                         </View>
@@ -81,7 +130,7 @@ function Profile(props) {
     )
 }
 
-const styles = StyleSheet.create({
+const stylesProfile = StyleSheet.create({
     container: {
         flex: 1,
     },
@@ -98,10 +147,12 @@ const styles = StyleSheet.create({
     image: {
         flex: 1,
         aspectRatio: 1 / 1
-    }
+    },
 })
+
 const mapStateToProps = (store) => ({
     currentUser: store.userState.currentUser,
-    posts: store.userState.posts
+    posts: store.userState.posts,
+    following: store.userState.following
 })
 export default connect(mapStateToProps, null)(Profile);
