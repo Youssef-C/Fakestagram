@@ -8,5 +8,5 @@ export default function Feed() {
             <Text style={styles.title}>Feed</Text>
         </View>
     )
-}
+}; 
 
